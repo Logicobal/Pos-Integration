@@ -56,6 +56,8 @@ add_action('wp_enqueue_scripts', 'enqueue');
 function enqueue()
     {
         // equeue all our scripts
+        wp_enqueue_style('font-awesome-pos', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css');
+
         wp_enqueue_style('mypluginstyle', plugin_dir_url(__FILE__) . 'assets/css/pos_style.css');
         wp_enqueue_script('bt-script', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js');
 

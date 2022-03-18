@@ -1450,6 +1450,34 @@ function pos_square_pos_import()
                                 update_post_meta( $variation_id, 'by_variation', serialize($variationValue->by_variation) );
 
 
+                                $v=1;
+
+                                $qtyVSum = 0;
+
+
+
+                                foreach($variationValue->by_variation as $by_variation_key => $by_variation_value){
+
+                                   update_post_meta( $variation_id, 'by_variation_qty_' . $v,       $by_variation_value->qty );
+
+                                   update_post_meta( $variation_id, 'by_variation_address_' . $v,   $by_variation_value->proper_address );
+
+                                   update_post_meta( $variation_id, 'by_variation_lat_' . $v,       $by_variation_value->lat );
+
+                                   update_post_meta( $variation_id, 'by_variation_long_' . $v,      $by_variation_value->long );
+
+                                   $qtyVSum += $by_variation_value->qty;
+
+                                    $v++;
+                                }
+
+                                update_post_meta($variation_id, '_stock',  $qtyVSum);
+
+                                // if($qtySum > 0){
+                                    update_post_meta( $variation_id, '_stock_status', 'instock');
+                                // }
+
+
 
                                 WC_Product_Variable::sync( $parent_id );
 
@@ -1540,8 +1568,7 @@ function pos_square_pos_import()
                             wp_set_object_terms($post_id, $val->cat_name, 'product_cat');
 
                             update_post_meta($post_id, '_visibility', 'visible');
-                            update_post_meta($post_id, '_stock_status', 'instock');
-
+                            
                             // update_post_meta($post_id, '_regular_price', $val->variations[0]->price->amount);
                             update_post_meta($post_id, '_sku', $val->variations[0]->sku);
 
@@ -1700,7 +1727,8 @@ function pos_square_pos_import()
                                     'post_parent'  => $parent_id,
                                     'post_type'    => 'product_variation'
                                 );
-
+                                
+                                $qtySum = 0;
 
                                 foreach($val->variations as $variationItem => $variationValue){
 
@@ -1722,8 +1750,8 @@ function pos_square_pos_import()
                                         }
                                     }
 
-
-                                    $variation_id = wp_insert_post( $variation );
+                                    echo $variation_id = wp_insert_post( $variation );
+                                    echo "<br/>";
                                     update_post_meta( $variation_id, '_regular_price', $price );
                                     update_post_meta( $variation_id, '_price', $price );
                                     update_post_meta($variation_id, '_sku', $variationValue->sku);
@@ -1731,6 +1759,35 @@ function pos_square_pos_import()
                                     update_post_meta( $variation_id, 'attribute_' . $attr_slug, $variationValue->name );
 
                                     update_post_meta( $variation_id, 'by_variation', serialize($variationValue->by_variation) );
+
+                                    $v=1;
+
+                                    $qtyVSum = 0;
+
+
+
+                                    foreach($variationValue->by_variation as $by_variation_key => $by_variation_value){
+
+                                       update_post_meta( $variation_id, 'by_variation_qty_' . $v,       $by_variation_value->qty );
+
+                                       update_post_meta( $variation_id, 'by_variation_address_' . $v,   $by_variation_value->proper_address );
+
+                                       update_post_meta( $variation_id, 'by_variation_lat_' . $v,       $by_variation_value->lat );
+
+                                       update_post_meta( $variation_id, 'by_variation_long_' . $v,      $by_variation_value->long );
+
+                                       $qtyVSum += $by_variation_value->qty;
+
+                                        $v++;
+                                    }
+
+                                    $qtySum += $qtyVSum;
+
+                                    update_post_meta($variation_id, '_stock',  $qtyVSum);
+
+                                    // if($qtySum > 0){
+                                        update_post_meta( $variation_id, '_stock_status', 'instock');
+                                    // }
 
                                     WC_Product_Variable::sync( $parent_id );
 
@@ -1786,9 +1843,18 @@ function pos_square_pos_import()
 
                                 }
 
+
                             // }
 
+                            if($qtySum > 0){
 
+                                update_post_meta($post_id, '_stock', $qtySum);
+
+                                update_post_meta($post_id, '_manage_stock', 'yes');
+
+                                update_post_meta($post_id, '_stock_status', 'instock');
+
+                            }
 
                             echo "Exists";
                         }
@@ -3700,10 +3766,10 @@ add_filter('cron_schedules','my_cron_schedules');
 
 // wp_schedule_event(time(), '5min', 'cron_pos_square_pos_import', $args);
 
-if (!wp_next_scheduled('cron_pos_square_pos_import')) {
-    wp_schedule_event(time(), '15min', 'cron_pos_square_pos_import');
-}
-add_action('cron_pos_square_pos_import', 'cron_pos_square_pos_import');
+// if (!wp_next_scheduled('cron_pos_square_pos_import')) {
+//     wp_schedule_event(time(), '15min', 'cron_pos_square_pos_import');
+// }
+// add_action('cron_pos_square_pos_import', 'cron_pos_square_pos_import');
 
 
 add_action( 'woocommerce_product_after_variable_attributes', 'variation_settings_fields', 10, 3 );

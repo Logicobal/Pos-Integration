@@ -175,6 +175,23 @@ ul.btn-tabs{
 .square-item-content */
 
 
+.import-features{
+    /* display: flex; */
+    /* justify-content: space-between; */
+    /* flex-wrap: wrap; */
+}
+
+.import-features div{
+    display: flex;
+    margin-right: 10px;
+}
+
+.import-features i{
+    padding-right: 5px;
+    margin-top: 5px;
+}
+
+
     @media (min-width:768px) {
   .tab-content .accordion-item {
     border: 0;
@@ -272,8 +289,77 @@ ul.btn-tabs{
                                             <h3>No Item</h3>
 
                                        </div>
-                                       <button class="btn btn-primary square_import_btn">Import All Products</button>
+                                       <button class="btn btn-primary square_import_btn" data-toggle="modal" data-target="#modalInfo">Import All Products</button>
                                 </div>
+
+                                <!-- Square Modal -->
+                                
+                                <div class="modal square-modal-confirm fade" tabindex="-1" role="dialog" aria-labelledby="modalInfo" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="myModalLabel">Please confirm</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="text-shadow: none; opacity: 1; color: #FFF;">
+                                            <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="import-features">
+
+                                                <h3 style="font-size: 16px;">Following attributes would be in your products from SquareUp.</h3>
+
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut title</p>
+                                                </div>
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut description</p>
+                                                </div>
+
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut SKU</p>
+                                                </div>
+
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut UPC</p>
+                                                </div>
+
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut price</p>
+                                                </div>
+
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut category</p>
+                                                </div>
+
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut images</p>
+                                                </div>
+
+                                                <div>
+                                                    <i class="fa-solid fa-check"></i>
+                                                    <p>Prodcut locations</p>
+                                                </div>
+                                            </div>
+                                        
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn" style="background: #f5f5f5 !important; color:#000" data-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-primary square_connect_confirm">Confirm</button>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- End Square Modal -->
+
+
                             </div>
                         </div>
                     

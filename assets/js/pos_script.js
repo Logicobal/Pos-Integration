@@ -14,7 +14,7 @@ jQuery(document).ready(function ($) {
       },
       success: function (response) {
         $('.pos-content-area #square_access_token').val(response);
-        console.log(response);
+        // console.log(response);
         $('.loading__square_section').hide();
       },
     });
@@ -32,6 +32,8 @@ jQuery(document).ready(function ($) {
         return false;
       }
 
+
+
       $('.loading__square_section').show();
 
       $.ajax({
@@ -48,7 +50,7 @@ jQuery(document).ready(function ($) {
           $('.loading__square_section').hide();
 
           if (parsedData.length > 0) {
-            console.log(parsedData);
+            // console.log(parsedData);
 
             let html = '';
 
@@ -79,8 +81,28 @@ jQuery(document).ready(function ($) {
               IMPORTING PRODUCTS TO WOOCOMMERCE
             =======================================
           */
-            $('.square_import_btn').click(function (e) {
+
+
+            $('.square_import_btn').on('click', function (e) {
               e.preventDefault();
+        
+        
+              let square_access_token = $(
+                '.pos-content-area #square_access_token'
+              ).val();
+        
+              if(square_access_token == ''){
+                return false;
+              }
+        
+              $('.square-modal-confirm').attr('id', 'modalInfo');
+            })
+
+
+            $('.square_connect_confirm').click(function (e) {
+              e.preventDefault();
+
+              $(this).attr('data-dismiss',"modal");
 
               $('.loading__square_section').show();
 
