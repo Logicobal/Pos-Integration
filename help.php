@@ -269,10 +269,14 @@ ul.btn-tabs{
 
 
                             <div class="square-line">
-                                <form class="form-container">
-                                    <h2>Connect With Square</h2>
+                                <form class="form-container square__form-container">
+                                    <!-- <h2>Connect With Square</h2>
                                     <input type="text" name="square_token" id="square_access_token" class="square_token" placeholder="Place your square access token"/>
-                                    <button class="btn btn-primary suqare_connect_btn">Connect</button>
+                                    <button class="btn btn-primary suqare_connect_btn">Connect</button> -->
+                                    <a href="https://connect.squareup.com/oauth2/authorize?client_id=sq0idp-nMIO_y2pDTfPk6MqK9_vyQ&scope=CUSTOMERS_WRITE+CUSTOMERS_READ+MERCHANT_PROFILE_READ+ITEMS_READ+INVENTORY_READ&session=false&state=82201dd8d83d23cc8a48caf52b" style="background-color: #2370F4; margin-top: 10px; padding:10px; display:flex; align-items:center">
+                                        <img src="<?php echo plugin_dir_url( __FILE__ ).'images/square.svg'; ?>" alt="">
+                                        <span style="color:#FFF; font-weight:700; font-size:18px; margin-left:5px;">Connect with Square</span>
+                                    </a>
                                 </form>
                                 <div class="square-listing">
                                        <div class="square-item-container">

@@ -14,7 +14,7 @@ function pos_tokens_connect()
 
         $userID =  get_current_user_id();
 
-        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}pos_creds WHERE user_id = $userID LIMIT 1");
+        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}square_creds WHERE user_id = $userID LIMIT 1");
 
         if (count($getUser) > 0) {
             echo $square_access_token = $getUser[0]->access_token;
@@ -238,46 +238,51 @@ function pos_square_connect()
 
     global $wpdb;
 
-    $square_access_token = $_POST['square_access_token'];
-
-    $client = new SquareClient([
-        'accessToken' => $square_access_token,
-        'environment' => Environment::PRODUCTION,
-    ]);
+    // if(!is_user_logged_in()){
+    //     return;
+    // }
 
     try {
-    $locationsApi = $client->getLocationsApi();
-    $apiResponse = $locationsApi->listLocations();
 
-    if ($apiResponse->isSuccess() && is_user_logged_in()) {
+    if (is_user_logged_in()) {
 
         $userID =  get_current_user_id();
 
-        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}pos_creds WHERE user_id = $userID");
+        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}square_creds WHERE user_id = $userID");
 
-
-        if (count($getUser) > 0) {
-            $wpdb->update(
-                $wpdb->prefix . 'pos_creds',
-                array(
-                    'access_token' => $square_access_token,
-                    'user_id' => $userID
-                ),
-                array(
-                    'user_id' => $userID
-                ),
-            );
-        } else {
-            $wpdb->insert(
-                $wpdb->prefix . 'pos_creds',
-                array(
-                    'access_token' => $square_access_token,
-                    'app_key' => '',
-                    'secret_key' => '',
-                    'user_id' => $userID
-                )
-            );
+        if(count($getUser)>0){
+            $square_access_token = $getUser[0]->access_token;
+        }else{
+            return;
         }
+
+        $client = new SquareClient([
+            'accessToken' => $square_access_token,
+            'environment' => Environment::PRODUCTION,
+        ]);
+
+        // if (count($getUser) > 0) {
+        //     $wpdb->update(
+        //         $wpdb->prefix . 'pos_creds',
+        //         array(
+        //             'access_token' => $square_access_token,
+        //             'user_id' => $userID
+        //         ),
+        //         array(
+        //             'user_id' => $userID
+        //         ),
+        //     );
+        // } else {
+        //     $wpdb->insert(
+        //         $wpdb->prefix . 'pos_creds',
+        //         array(
+        //             'access_token' => $square_access_token,
+        //             'app_key' => '',
+        //             'secret_key' => '',
+        //             'user_id' => $userID
+        //         )
+        //     );
+        // }
 
         $catalog_response = $client->getCatalogApi()->listCatalog(null, 'ITEM');
 
@@ -458,7 +463,7 @@ function pos_square_pos_import()
 
         $userID =  get_current_user_id();
 
-        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}pos_creds WHERE user_id = $userID LIMIT 1");
+        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}square_creds WHERE user_id = $userID LIMIT 1");
 
         $square_access_token = $getUser[0]->access_token;
 
@@ -3760,16 +3765,21 @@ function my_cron_schedules($schedules){
             'interval' => 30*60,
             'display' => __('Once every 30 minutes'));
     }
+    if(!isset($schedules["1day"])){
+        $schedules["1day"] = array(
+            'interval' => 24*60*60,
+            'display' => __('Once every 1 day'));
+    }
     return $schedules;
 }
 add_filter('cron_schedules','my_cron_schedules');
 
 // wp_schedule_event(time(), '5min', 'cron_pos_square_pos_import', $args);
 
-// if (!wp_next_scheduled('cron_pos_square_pos_import')) {
-//     wp_schedule_event(time(), '15min', 'cron_pos_square_pos_import');
-// }
-// add_action('cron_pos_square_pos_import', 'cron_pos_square_pos_import');
+if (!wp_next_scheduled('cron_pos_square_pos_import')) {
+    wp_schedule_event(time(), '15min', 'cron_pos_square_pos_import');
+}
+add_action('cron_pos_square_pos_import', 'cron_pos_square_pos_import');
 
 
 add_action( 'woocommerce_product_after_variable_attributes', 'variation_settings_fields', 10, 3 );
@@ -3802,4 +3812,165 @@ function load_variation_settings_fields( $variation ) {
     $variation['my_text_field'] = get_post_meta( $variation[ 'variation_id' ], 'my_text_field', true );
 
     return $variation;
+}
+
+
+// Custom Template
+
+add_filter( 'page_template', 'wpa3396_page_template' );
+function wpa3396_page_template( $page_template )
+{
+    if ( is_page( 'square-authorization' ) ) {
+        $page_template = dirname( __FILE__ ) . '/authorization.php';
+    }
+    return $page_template;
+}
+
+// AJAX for authorization
+
+add_action('wp_ajax_nopriv_square_pos_verify_connect', 'square_pos_verify_connect');
+add_action('wp_ajax_square_pos_verify_connect', 'square_pos_verify_connect');
+
+function square_pos_verify_connect(){
+
+    global $wpdb;
+
+    $ownerAccessToekn = 'EAAAED4wr-EjavCCGSjThhRy9dsk0kQ5jPCFWOCAT5vO7NZGkSeynB3SySf_KMPc';
+
+    // if (is_user_logged_in()) {
+
+       $userID =  get_current_user_id();
+
+    // }
+
+    // exit;
+
+    $client = new SquareClient([
+        'accessToken' => $ownerAccessToekn,
+        'environment' => Environment::PRODUCTION,
+    ]);
+
+    $code = $_POST['code'];
+
+
+    $body = new \Square\Models\ObtainTokenRequest(
+        'sq0idp-nMIO_y2pDTfPk6MqK9_vyQ',
+        'sq0csp-CtF_unV1c3KRhDHkYAnCWnA0Qf43RtvepZaxUBHXh5Y',
+        'authorization_code'
+    );
+    $body->setCode($code);
+    $body->setShortLived(false);
+    
+    $api_response = $client->getOAuthApi()->obtainToken($body);
+    
+    if ($api_response->isSuccess()) {
+        $result = $api_response->getResult();
+        $result = json_decode(json_encode($result));
+
+        // print_r($result);
+
+        // exit;
+
+        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}square_creds WHERE user_id = $userID");
+
+
+        if (count($getUser) > 0) {
+            $wpdb->update(
+                $wpdb->prefix . 'square_creds',
+                array(
+                    'access_token' => $result->access_token,
+                    'refresh_token' => $result->refresh_token,
+                    'expires_at' => $result->expires_at,
+                    'merchant_id' => $result->merchant_id,
+                    'status' => 1,
+                    'user_id' => $userID
+                ),
+                array(
+                    'user_id' => $userID
+                ),
+            );
+        } else {
+            $wpdb->insert(
+                $wpdb->prefix . 'square_creds',
+                array(
+                    'access_token' => $result->access_token,
+                    'refresh_token' => $result->refresh_token,
+                    'expires_at' => $result->expires_at,
+                    'merchant_id' => $result->merchant_id,
+                    'status' => 1,
+                    'user_id' => $userID
+                )
+            );
+        }
+
+    } else {
+        $errors = $api_response->getErrors();
+    }
+
+
+    die();
+}
+
+// AJAX for authorization
+
+add_action('wp_ajax_nopriv_revoke_square_access', 'revoke_square_access');
+add_action('wp_ajax_revoke_square_access', 'revoke_square_access');
+
+function revoke_square_access(){
+    
+    global $wpdb;
+
+    if (is_user_logged_in()) {
+
+        $userID =  get_current_user_id();
+
+        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}square_creds WHERE user_id = $userID");
+        
+        $wpdb->delete(
+            $wpdb->prefix . 'square_creds',
+            array(
+                'user_id' => $userID
+            ),
+        );
+
+        echo get_site_url() . '/dashboard/pos/';
+
+    }
+    
+    die();
+}
+
+if (!wp_next_scheduled('revoke__cron__square_token')) {
+    wp_schedule_event(time(), '1day', 'revoke__cron__square_token');
+}
+add_action('revoke__cron__square_token', 'revoke__cron__square_token');
+function revoke__cron__square_token(){
+    
+        global $wpdb;
+    
+        $getUser = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}square_creds WHERE status = 1");
+    
+        foreach ($getUser as $key => $value) {
+            $userID = $value->user_id;
+            $accessToken = $value->access_token;
+            $refreshToken = $value->refresh_token;
+            $expiresAt = $value->expires_at;
+            $merchantId = $value->merchant_id;
+            
+            $cuurent_time = time();
+
+            $expiresAt = strtotime($expiresAt);
+
+            if($cuurent_time > $expiresAt){
+
+                $wpdb->delete(
+                    $wpdb->prefix . 'square_creds',
+                    array(
+                        'user_id' => $userID
+                    ),
+                );
+            }
+
+
+        }
 }

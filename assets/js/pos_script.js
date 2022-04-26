@@ -14,6 +14,11 @@ jQuery(document).ready(function ($) {
       },
       success: function (response) {
         $('.pos-content-area #square_access_token').val(response);
+        if(response !== ''){
+          $('.pos-content-area .square__form-container span').text('Disconnect with Square');
+          $('.pos-content-area .square__form-container a').attr('href','#');
+          $('.pos-content-area .square__form-container a').addClass('square_disconnect_btn');
+        }
         // console.log(response);
         $('.loading__square_section').hide();
       },
@@ -21,16 +26,16 @@ jQuery(document).ready(function ($) {
 
     // $('.loading__square_section').hide();
 
-    suqare_connect_btn.click(function (e) {
-      e.preventDefault();
+    $(document).ready(function (e) {
+      // e.preventDefault();
 
       let square_access_token = $(
         '.pos-content-area #square_access_token'
       ).val();
 
-      if (square_access_token == '') {
-        return false;
-      }
+      // if (square_access_token == '') {
+      //   return false;
+      // }
 
 
 
@@ -129,6 +134,25 @@ jQuery(document).ready(function ($) {
       });
 
       //   alert('Connecting to Square...');
+    });
+
+    $(document).on('click', '.pos-content-area .square__form-container .square_disconnect_btn', function (e) {
+      e.preventDefault();
+
+      if($('.pos-content-area .square__form-container span').text() == 'Disconnect with Square'){
+        $.ajax({
+          url: ajax_url,
+          method: 'POST',
+          data: {
+            action: 'revoke_square_access',
+          },
+          success: function (response) {
+            // console.log(response);
+            window.location.href = response;
+          },
+        });
+      }
+
     });
   }
 });

@@ -80,6 +80,7 @@ function activate_pos(){
     $charset_collate = $wpdb->get_charset_collate();
 
     $tablename = $wpdb->prefix . 'pos_creds';
+    $tablename1 = $wpdb->prefix . 'square_creds';
 
     $sql =  "CREATE TABLE IF NOT EXISTS $tablename(
         id int(11) NOT NULL AUTO_INCREMENT,
@@ -91,27 +92,24 @@ function activate_pos(){
         UNIQUE KEY(user_id) 
     )";
 
+    $sql1 =  "CREATE TABLE IF NOT EXISTS $tablename1(
+        id int(11) NOT NULL AUTO_INCREMENT,
+        access_token varchar(255) NOT NULL,
+        expires_at varchar(255) NOT NULL,
+        merchant_id varchar(255) NOT NULL,
+        refresh_token varchar(255) NOT NULL,
+        user_id varchar(255) NOT NULL,
+        status int(11) NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY(user_id) 
+    )";
+
 
     require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
 
     dbDelta( $sql );
+
+    dbDelta( $sql1 );
 }
 
 require_once( __DIR__ . '/functions.php' );
-
-// register_uninstall_hook(__FILE__, 'on_uninstall');
-
-// function on_uninstall(){
-
-//     if ( !defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-//         exit();
-//     }
-
-//     global $wpdb;
-
-//     $table_name = $wpdb->prefix . 'pos_creds';
-
-//     $sql = "DROP TABLE IF EXISTS $table_name";
-//     $wpdb->query($sql);
-
-// }
