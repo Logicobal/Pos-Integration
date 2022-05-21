@@ -148,7 +148,7 @@ function show_on_edit_page($post, $post_id)
 
     ?>
                 <tr>
-                    <td><?php echo $i; ?></td>
+                    <td><?php echo $exists_variationValue; ?></td>
                     <td style="width:100px"><img src="<?php echo $attachment_id ? wp_get_attachment_url(  $attachment_id ) : plugin_dir_url( __FILE__ ) . 'images/thumb-img.jpg'; ?>"/></td>
                     <td><?php echo $variation_name; ?></td>
                     
@@ -1613,7 +1613,11 @@ function pos_square_pos_import()
                                     update_post_meta($post_id, 'addr_longitude' . $i, $all_addr[$i]->long ?: '');
                                 }
                             }
-
+                            
+                            echo "Product ids: ".$post_id."<br>";
+                            $thum_id = get_post_thumbnail_id($post_id);
+                            wp_delete_attachment($thum_id);
+                           
                             /* ============================ Product Thumbnail ================= */
 
                             if (count($val->image_url) > 0) {
@@ -1699,8 +1703,9 @@ function pos_square_pos_import()
                             $product = wc_get_product($post_id);
                             $variations = $product->get_available_variations();
                             $exists_variations_id = wp_list_pluck( $variations, 'variation_id' );
-
-                            // print_r($variations_id);
+                            
+                            echo "The variable ID's";
+                            print_r($variations_id);
 
                             // if(count($exists_variations_id) == count($val->variations)){
                             //     // Update Variations
@@ -1719,6 +1724,12 @@ function pos_square_pos_import()
                                 // Delete Variations
                                 if(count( $exists_variations_id)>0){
                                     foreach($exists_variations_id as $exists_variation_id){
+
+                                        $thum_id = get_post_thumbnail_id($exists_variation_id);
+
+                                        wp_delete_attachment($thum_id);
+
+                                        // wp_delete_attachment($exists_variations_id);
                                         wp_delete_post($exists_variation_id, true);
                                     }
                                 }
@@ -2003,6 +2014,9 @@ function pos_square_pos_import()
                                 // And finally assign featured image to post
                                 set_post_thumbnail($post_id, $attach_id);
                             }
+
+                            // echo 'Simple Procudt post_id:' . $post_id . '<br>';
+
                         } else {
 
                             $post_id = $getItemID[0]->post_id;
@@ -2017,6 +2031,13 @@ function pos_square_pos_import()
                                 'post_status' => 'publish',
                                 'post_type' => "product",
                             ) );
+
+                            // echo 'Simple Procudt post_id:' . $post_id . '<br>';
+
+                        //     $thum_id = get_post_thumbnail_id($post_id);
+
+                        //    // wp_delete_attachment($thum_id);
+
 
                             update_post_meta($post_id, 'square_catalog_item_id', $square_catalog_item_id);
 
@@ -3277,6 +3298,9 @@ function cron_pos_square_pos_import()
 
                             /* ============================ Product Thumbnail ================= */
 
+                            $thum_id = get_post_thumbnail_id($post_id);
+                            wp_delete_attachment($thum_id);
+
                             if (count($val->image_url) > 0) {
 
                                 // Add Featured Image to Post
@@ -3380,6 +3404,8 @@ function cron_pos_square_pos_import()
                                 // Delete Variations
                                 if(count( $exists_variations_id)>0){
                                     foreach($exists_variations_id as $exists_variation_id){
+                                        $thum_id = get_post_thumbnail_id($exists_variation_id);
+                                        wp_delete_attachment($thum_id);
                                         wp_delete_post($exists_variation_id, true);
                                     }
                                 }
@@ -3640,6 +3666,9 @@ function cron_pos_square_pos_import()
                                 'post_type' => "product",
                             ) );
 
+                            $thum_id = get_post_thumbnail_id($post_id);
+                            wp_delete_attachment($thum_id);
+
                             update_post_meta($post_id, 'square_catalog_item_id', $square_catalog_item_id);
 
                             wp_set_object_terms($post_id, $val->cat_name, 'product_cat');
@@ -3835,7 +3864,7 @@ function square_pos_verify_connect(){
 
     global $wpdb;
 
-    $ownerAccessToekn = 'EAAAED4wr-EjavCCGSjThhRy9dsk0kQ5jPCFWOCAT5vO7NZGkSeynB3SySf_KMPc';
+    $ownerAccessToekn = 'EAAAEVq43B-mM1iKxBZivTtiXTf3bXyZ2rp-a_svJmq9ytikOr_Xcvww129PLryK';
 
     // if (is_user_logged_in()) {
 
@@ -3853,9 +3882,14 @@ function square_pos_verify_connect(){
     $code = $_POST['code'];
 
 
+    // $body = new \Square\Models\ObtainTokenRequest(
+    //     'sq0idp-nMIO_y2pDTfPk6MqK9_vyQ',
+    //     'sq0csp-CtF_unV1c3KRhDHkYAnCWnA0Qf43RtvepZaxUBHXh5Y',
+    //     'authorization_code'
+    // );
     $body = new \Square\Models\ObtainTokenRequest(
-        'sq0idp-nMIO_y2pDTfPk6MqK9_vyQ',
-        'sq0csp-CtF_unV1c3KRhDHkYAnCWnA0Qf43RtvepZaxUBHXh5Y',
+        'sq0idp-7w6KCKAR2s1ei5L9BpocdQ',
+        'sq0csp-gYh5yD6TSlvbsH3vEOBC6UxdfNlaUbGxVN4d50Q8SNA',
         'authorization_code'
     );
     $body->setCode($code);
